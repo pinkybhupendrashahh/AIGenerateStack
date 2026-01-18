@@ -1,4 +1,5 @@
 ﻿using Application.Interfaces;
+using Infrastructure.Git;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -8,22 +9,26 @@ using System.Threading.Tasks;
 
 namespace Infrastructure.Audio
 {
- 
 
     public class LocalTtsService : ITtsService
     {
+        private readonly GitHubUploader _uploader;
+
+        public LocalTtsService(GitHubUploader uploader)
+        {
+            _uploader = uploader;
+        }
+
         public async Task<string> SynthesizeAsync(string text, string voice)
         {
             var fileName = $"audio_{Guid.NewGuid()}.mp3";
-            var outputPath = Path.Combine("wwwroot", "audio", fileName);
+            var localPath = Path.Combine(Path.GetTempPath(), fileName);
 
-            Directory.CreateDirectory(Path.GetDirectoryName(outputPath)!);
-
+            // Call python edge-tts
             var psi = new ProcessStartInfo
             {
                 FileName = "python",
-                Arguments = $"tts.py \"{text}\" \"{voice}\" \"{outputPath}\"",
-                RedirectStandardOutput = true,
+                Arguments = $"tts.py \"{text}\" \"{voice}\" \"{localPath}\"",
                 RedirectStandardError = true,
                 UseShellExecute = false,
                 CreateNoWindow = true
@@ -33,12 +38,12 @@ namespace Infrastructure.Audio
             await process.WaitForExitAsync();
 
             if (process.ExitCode != 0)
-            {
-                var error = await process.StandardError.ReadToEndAsync();
-                throw new Exception($"TTS failed: {error}");
-            }
+                throw new Exception(await process.StandardError.ReadToEndAsync());
 
-            return $"/audio/{fileName}";
+            // 🔥 Upload to GitHub
+            return await _uploader.UploadAsync(localPath);
         }
     }
+
+}
 }

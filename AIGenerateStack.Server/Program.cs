@@ -4,6 +4,7 @@ using Application.UseCases;
 using Domain.Models;
 using Infrastructure.AI;
 using Infrastructure.Audio;
+using Infrastructure.Git;
 using Infrastructure.Persistence;
 using Infrastructure.Video;
 using Microsoft.AspNetCore.Builder;
@@ -23,8 +24,11 @@ builder.Services.AddScoped<IAiScriptService, OllamaService>();
 builder.Services.AddScoped<GenerateAiVideoUseCase>();
 builder.Services.Configure<OllamaOptions>(
 builder.Configuration.GetSection("Ollama"));
+builder.Services.Configure<GitHubOptions>(
+    builder.Configuration.GetSection("GitHub"));
 
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpClient<GitHubUploader>();
 
 
 builder.Services.AddSwaggerGen();
