@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+
+/* ---------- Global polish ---------- */
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+}
+
+/* Dark mode */
+.dark body {
+  @apply bg-slate-900 text-slate-100;
+}
+

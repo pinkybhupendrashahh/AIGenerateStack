@@ -1,0 +1,6 @@
+@AIGenerateStack.Server_HostAddress = http://localhost:5001
+
+GET {{AIGenerateStack.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
