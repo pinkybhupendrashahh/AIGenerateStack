@@ -3,6 +3,48 @@ import { videoApi } from "../api/videoApi";
 
 const TERMINAL_STATES = ["Completed", "Failed", "Cancelled"];
 
+// export function useVideoStatus(jobId) {
+//   const [job, setJob] = useState(null);
+//   const [error, setError] = useState(null);
+
+//   useEffect(() => {
+//     if (!jobId) return;
+
+//     let cancelled = false;
+//     let timer;
+
+//     const poll = async () => {
+//       try {
+//         const res = await videoApi.status(jobId);
+//         if (cancelled) return;
+
+//         setJob(res);
+
+//         if (!TERMINAL_STATES.includes(res.status)) {
+//           timer = setTimeout(poll, 3000);
+//         }
+//       } catch (err) {
+//         if (!cancelled) setError(err.message);
+//       }
+//     };
+
+//   ///  setError(null);
+//     poll();
+
+//     return () => {
+//       cancelled = true;
+//       clearTimeout(timer);
+//     };
+//   }, [jobId]);
+
+//   return {
+//     status: job?.status,
+//     progress: job?.progress ?? 0,
+//     videoUrl: job?.videoUrl,
+//     error
+//   };
+// }
+
 export function useVideoStatus(jobId) {
   const [job, setJob] = useState(null);
   const [error, setError] = useState(null);
@@ -20,7 +62,7 @@ export function useVideoStatus(jobId) {
 
         setJob(res);
 
-        if (!TERMINAL_STATES.includes(res.status)) {
+        if (!["Completed", "Failed", "Cancelled"].includes(res.status)) {
           timer = setTimeout(poll, 3000);
         }
       } catch (err) {
@@ -28,7 +70,6 @@ export function useVideoStatus(jobId) {
       }
     };
 
-    setError(null);
     poll();
 
     return () => {
@@ -37,10 +78,5 @@ export function useVideoStatus(jobId) {
     };
   }, [jobId]);
 
-  return {
-    status: job?.status,
-    progress: job?.progress ?? 0,
-    videoUrl: job?.videoUrl,
-    error
-  };
+  return { job, error };
 }

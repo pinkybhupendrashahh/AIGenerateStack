@@ -8,7 +8,7 @@ import { videoApi } from "../api/videoApi";
 import  {useVideoStatus}  from "../hooks/useVideoStatus";
 export  function VideoStatusPage({ jobId }) {
     const { job, error } = useVideoStatus(jobId);
-
+console.log("VideoStatusPage mounted with jobId:", jobId);
   if (!job) return <p className="p-6">⏳ Initializing job...</p>;
   if (error) return <p className="p-6 text-red-500">{error}</p>;
 
@@ -30,7 +30,7 @@ export  function VideoStatusPage({ jobId }) {
             className="rounded-xl shadow-lg w-full"
           />
           <a
-            href={job.videoUrl}
+            href={job.videPath}
             download
             className="block text-center underline text-sm"
           >

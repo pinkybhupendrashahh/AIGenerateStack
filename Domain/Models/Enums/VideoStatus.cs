@@ -9,14 +9,17 @@ namespace Domain.Models.Enums
    
         public enum VideoStatus
         {
-            Created = 0,        // Job accepted
-            ScriptGenerated = 1,// Ollama completed
-            AudioGenerated = 2, // TTS completed
-            VideoGenerated = 3, // Visual clips ready
-            Composed = 4,       // Audio + video merged
-            Completed = 5,      // Final video ready
-            Failed = 99         // Any failure
-        }
+        Pending = 0,          // Job created, not yet picked by worker
+        Processing = 1,       // Worker started processing
+        Created=5,
+        ScriptGenerated = 2,
+        AudioGenerated = 3,
+        VideoGenerated = 4,
+        Composed = 90,
+        Queued=6,
+        Completed = 6,
+        Failed = 99
+    }
     }
 
 

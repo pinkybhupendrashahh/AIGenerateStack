@@ -6,11 +6,8 @@ using System.Threading.Tasks;
 
 namespace Application.Interfaces
 {
-    
-        public interface IAiScriptService
-        {
-            Task<string> GenerateAsync(string topic);
-        }
+    public interface IFileSystem
+    {
+        string WebRootPath { get; }
     }
-
-
+}

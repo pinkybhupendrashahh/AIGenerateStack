@@ -4,12 +4,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Application.Interfaces
 {
-    public interface IVideoGenerator
+    public interface ISceneParser
     {
-       // Task<string> GenerateAsync(Scene scene);
-          Task<List<string>> GenerateAsync(string script);
+        List<Scene> Parse(string script);
     }
 }

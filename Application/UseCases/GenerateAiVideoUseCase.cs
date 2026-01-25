@@ -1,41 +1,82 @@
 ﻿using Application.Interfaces;
-using Domain.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+using Domain.Models.Enums;
+using Infrastructure;
 namespace Application.UseCases
 {
     public class GenerateAiVideoUseCase
     {
-        private readonly IAiScriptService _script;
+        private readonly IVideoRepository _repository;
         private readonly ITtsService _tts;
-        private readonly IVideoGenerator _videoGen;
+        private readonly IVideoGenerator _videoGenerator;
         private readonly IVideoComposer _composer;
 
+        private readonly IAiScriptService _ollamaService;
+
         public GenerateAiVideoUseCase(
-            IAiScriptService script,
+            IVideoRepository repository,
             ITtsService tts,
-            IVideoGenerator videoGen,
-            IVideoComposer composer)
+            IVideoGenerator videoGenerator,
+            IVideoComposer composer,
+            IAiScriptService ollamaService)
         {
-            _script = script;
+            _repository = repository;
             _tts = tts;
-            _videoGen = videoGen;
+            _videoGenerator = videoGenerator;
             _composer = composer;
+            _ollamaService = ollamaService;
         }
 
-        public async Task<string> ExecuteAsync(VideoRequest req)
+        public async Task ExecuteAsync(GenerateVideoCommand command)
         {
-            var script = await _script.GenerateAsync(req.Topic, req.Style);
-            var audioPath = await _tts.SynthesizeAsync(script, req.Voice);
-            var visuals = await _videoGen.GenerateAsync(script);
-            var finalVideo = await _composer.MergeAsync(visuals, audioPath);
+            //var job = await _repository.GetAsync(command.JobId)
+            //          ?? throw new Exception("Job not found");
+            var job = command.Job; // ✅ Job already loaded by worker
 
-            return finalVideo;
+            //Console.WriteLine($"[GenerateAiVideoUseCase] Starting job {job.job}");
+            Console.WriteLine($"[GenerateAiVideoUseCase] Starting job");
+                // {job.Id}");
+            try
+            {
+                await _repository.UpdateStatusAsync(job.Id, VideoStatus.Processing);
+                // 1️⃣ Generate script using OLLAMA if not already present
+                // 1️⃣ Generate script using Ollama if not already present
+               // if (string.IsNullOrWhiteSpace(job.Script))
+             //   {
+                    Console.WriteLine($"[GenerateAiVideoUseCase] Generating script for job {job.Id}");
+                    job.Script = await _ollamaService.GenerateAsync(job.Prompt); // ✅ Generate narration
+
+                    if (string.IsNullOrWhiteSpace(job.Script))
+                    {
+                        await _repository.FailAsync(job.Id, "Script generation failed");
+                        return;
+                    }
+
+                    // Optionally save the generated script back to DB
+                    //await _repository.UpdateScriptAsync(job.Id, job.Script);
+             //   }
+                // 1️⃣ Audio
+                var audioPath =
+                    await _tts.SynthesizeAsync(job.Script, job.Voice.Name);
+
+                await _repository.UpdateProgressAsync(job.Id, 40);
+
+                // 2️⃣ Video clips
+                var clips =
+                    await _videoGenerator.GenerateAsync(job.Script);
+
+                await _repository.UpdateProgressAsync(job.Id, 70);
+
+                // 3️⃣ Merge
+                var finalVideo =
+                    await _composer.MergeAsync(clips, audioPath);
+
+                await _repository.CompleteAsync(job.Id, finalVideo);
+            }
+            catch (Exception ex)
+            {
+                await _repository.FailAsync(job.Id, ex.Message);
+                throw;
+            }
         }
     }
-
 }

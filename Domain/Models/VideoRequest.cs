@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Domain.Models.ValueObjects;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,7 +28,7 @@ namespace Domain.Models
             /// <summary>
             /// Voice identifier for TTS
             /// </summary>
-            public string Voice { get; set; }
+            public Voice Voice { get; set; }
 
             /// <summary>
             /// Optional user-provided script (overrides AI script)

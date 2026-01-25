@@ -1,3 +1,5 @@
+using AIGenerateStack.Server.Backgroundservices;
+using AIGenerateStack.Server.Infrastructure;
 using AIGenerateStack.Server.Middleware;
 using Application.Interfaces;
 using Application.UseCases;
@@ -18,18 +20,30 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddScoped<ITtsService, LocalTtsService>();
 builder.Services.AddScoped<IVideoGenerator, AiVideoGenerator>();
-builder.Services.AddScoped<IVideoComposer, VideoComposer>();
-builder.Services.AddScoped<IVideoRepository, VideoRepository>();
+//builder.Services.AddScoped<IVideoComposer, VideoComposer>();
+builder.Services.AddScoped<IVideoRepository, InMemoryVideoRepository>();
 builder.Services.AddScoped<IAiScriptService, OllamaService>();
 builder.Services.AddScoped<GenerateAiVideoUseCase>();
 builder.Services.Configure<OllamaOptions>(
 builder.Configuration.GetSection("Ollama"));
 builder.Services.Configure<GitHubOptions>(
     builder.Configuration.GetSection("GitHub"));
+builder.Services.AddSingleton<ISceneParser, SceneParser>();
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddHttpClient<GitHubUploader>();
 
+builder.Services.AddSingleton<IVideoJobQueue, VideoJobQueue>();
+builder.Services.AddHostedService<VideoJobWorker>();
+builder.Services.AddSingleton<IFfmpegService, FfmpegService>();
+builder.Services.AddSingleton<IFileSystem, WebFileSystem>();
+
+builder.Services.AddSingleton<IVideoComposer, VideoComposer>();
+builder.Services.Configure<HostOptions>(options =>
+{
+    options.BackgroundServiceExceptionBehavior =
+        BackgroundServiceExceptionBehavior.Ignore;
+});
 
 builder.Services.AddSwaggerGen();
 builder.Services.AddCors(options =>

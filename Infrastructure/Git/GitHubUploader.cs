@@ -21,7 +21,7 @@ namespace Infrastructure.Git
             _http = http;
             _options = options.Value;
 
-            _http.DefaultRequestHeaders.UserAgent.ParseAdd("AI-Video-App");
+            _http.DefaultRequestHeaders.UserAgent.ParseAdd("AIGenerateStack");
             _http.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", _options.Token);
         }

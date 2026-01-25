@@ -7,10 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http.Json;
-using System.Net.Http.Json;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+
 namespace Infrastructure.AI
 {
    
@@ -27,10 +24,10 @@ namespace Infrastructure.AI
             _options = options.Value;
         }
 
-        public async Task<string> GenerateAsync(string topic, string style)
+        public async Task<string> GenerateAsync(string topic)
         {
             var prompt =
-                $"Write a {style} narration about {topic}. " +
+                $"Write a  narration about {topic}. " +
                 $"Keep it suitable for a short AI video.";
 
             var request = new OllamaRequest

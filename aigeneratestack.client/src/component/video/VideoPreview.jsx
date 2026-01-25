@@ -1,12 +1,12 @@
-import Button from "../components/Button";
-import StatusBadge from "../components/StatusBadge";
+import Button from "../common/Button";
+import StatusBadge from "../common/StatusBadge";
 
 export default function VideoPreview({
-  videoUrl,
+  videoPath,
   status,
   onRetry,
 }) {
-  if (!videoUrl && status !== "Completed") return null;
+  if (!videoPath && status !== "Completed") return null;
 
   return (
     <div className="mt-8 space-y-4">
@@ -16,9 +16,9 @@ export default function VideoPreview({
       </div>
 
       <div className="rounded-2xl overflow-hidden shadow-lg bg-black">
-        {videoUrl ? (
+        {videoPath ? (
           <video
-            src={videoUrl}
+            src={videoPath}
             controls
             className="w-full max-h-[420px]"
           />
@@ -31,7 +31,7 @@ export default function VideoPreview({
 
       <div className="flex gap-4">
         <a
-          href={videoUrl}
+          href={videoPath}
           download
           className="flex-1"
         >
