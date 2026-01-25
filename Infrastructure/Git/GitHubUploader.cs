@@ -22,6 +22,7 @@ namespace Infrastructure.Git
             _options = options.Value;
 
             _http.DefaultRequestHeaders.UserAgent.ParseAdd("AIGenerateStack");
+            _http.DefaultRequestHeaders.Accept.ParseAdd("application/vnd.github+json");
             _http.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", _options.Token);
         }
